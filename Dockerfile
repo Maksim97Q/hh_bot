@@ -1,9 +1,12 @@
-FROM eclipse-temurin:17-jdk AS build
+# build stage
+FROM gradle:8.10-jdk17 AS build
 WORKDIR /app
 COPY . .
-RUN ./gradlew bootJar
+RUN chmod +x ./gradlew
+RUN ./gradlew bootJar --no-daemon
 
+# runtime stage
 FROM eclipse-temurin:17-jdk
 WORKDIR /app
-COPY --from=build /app/build/libs/vacancy_bot-0.0.1-SNAPSHOT.jar app.jar
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+COPY --from=build /app/build/libs/*.jar app.jar
+ENTRYPOINT ["java","-jar","app.jar"]
